@@ -51,6 +51,7 @@ def main():
 
     # Combine the DataFrames into a single DataFrame matching the Node ID
     combined = pd.concat([data_final, features])
+    print(combined)
 
 
 if __name__ == '__main__':
