@@ -55,13 +55,7 @@ def main():
     features = create_dataframe('../data/features.json', True)
 
     # Combine the DataFrames into a single DataFrame matching the Node ID
-    combined = pd.concat([data_final, features])
-
-    # Print the header of the combined DataFrame
-    print(combined.head())
-
-    # Divider for the output
-    print("\n" + "=" * 100 + "\n")
+    combined = pd.merge(data_final, features, left_index=True, right_index=True)
 
     # Print the combined DataFrame
     print(combined)
