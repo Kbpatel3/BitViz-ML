@@ -1,5 +1,7 @@
 import pandas as pd
-
+pd.set_option('display.max_rows', 20)
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.width', 1000)
 
 def create_dataframe(file, orient):
     df = None
