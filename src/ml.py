@@ -1,7 +1,9 @@
 import pandas as pd
+
 pd.set_option('display.max_rows', 20)
 pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', 1000)
+
 
 def create_dataframe(file, orient):
     df = None
@@ -13,7 +15,7 @@ def create_dataframe(file, orient):
         df = pd.read_json(file)
 
     # Print the DataFrame
-    print(df.to_markdown())
+    print(df)
 
     # Divider for the output
     print("\n" + "=" * 100 + "\n")
@@ -62,7 +64,7 @@ def main():
     print("\n" + "=" * 100 + "\n")
 
     # Print the combined DataFrame
-    print(combined.to_markdown())
+    print(combined)
 
     # Divider for the output
     print("\n" + "=" * 100 + "\n")
