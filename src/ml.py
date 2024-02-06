@@ -12,14 +12,8 @@ def create_dataframe(file, orient):
     else:
         df = pd.read_json(file)
 
-    # Print the header of the DataFrame
-    print(df.head())
-
-    # Divider for the output
-    print("\n" + "=" * 100 + "\n")
-
     # Print the DataFrame
-    print(df)
+    print(df.to_markdown())
 
     # Divider for the output
     print("\n" + "=" * 100 + "\n")
@@ -68,7 +62,7 @@ def main():
     print("\n" + "=" * 100 + "\n")
 
     # Print the combined DataFrame
-    print(combined)
+    print(combined.to_markdown())
 
     # Divider for the output
     print("\n" + "=" * 100 + "\n")
