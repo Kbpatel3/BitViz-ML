@@ -47,6 +47,9 @@ def main():
     # Initialize the features DataFrame
     features = create_dataframe('../data/features.json', True)
 
+    # Combine the DataFrames into a single DataFrame matching the Node ID
+    combined = pd.concat([data_final, features])
+
 
 if __name__ == '__main__':
     main()
