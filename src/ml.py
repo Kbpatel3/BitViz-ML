@@ -12,8 +12,17 @@ def create_dataframe(file, orient):
     else:
         df = pd.read_json(file)
 
+    # Print the header of the DataFrame
+    print(df.head())
+
+    # Divider for the output
+    print("\n" + "=" * 100 + "\n")
+
     # Print the DataFrame
     print(df)
+
+    # Divider for the output
+    print("\n" + "=" * 100 + "\n")
 
     # Return the DataFrame
     return df
@@ -51,7 +60,18 @@ def main():
 
     # Combine the DataFrames into a single DataFrame matching the Node ID
     combined = pd.concat([data_final, features])
+
+    # Print the header of the combined DataFrame
+    print(combined.head())
+
+    # Divider for the output
+    print("\n" + "=" * 100 + "\n")
+
+    # Print the combined DataFrame
     print(combined)
+
+    # Divider for the output
+    print("\n" + "=" * 100 + "\n")
 
 
 if __name__ == '__main__':
