@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import matplotlib.pyplot as plt
 
 
 def load_json_file(file):
@@ -68,6 +69,15 @@ def merge_dataframes(data_final, features):
     print("\n\n" + "=" * 100)
     print("=" * 100 + "\n")
 
+def visualize_correlation_heatmap(df):
+    correlation_df = df.corr()
+    figure, axis = plt.subplots(figsize=(10,8))
+    color_axis = axis.matshow(correlation_df, cmap='coolwarm')
+    figure.colorbar(color_axis)
+    plt.xticks(range(len(correlation_df.columns)), correlation_df.columns, rotation=90)
+    plt.yticks(range(len(correlation_df.columns)), correlation_df.columns)
+    plt.title('Correlation Heatmap', y=-0.1)
+    plt.show()
 
 def main():
     # Initialize the data_final DataFrame
@@ -78,7 +88,9 @@ def main():
 
     # Merge the DataFrames
     combined_df = merge_dataframes(data_final_df, features_df)
-
+    
+    # Show correlation heatmap
+    visualize_correlation_heatmap(combined_df)
 
 if __name__ == '__main__':
     main()
