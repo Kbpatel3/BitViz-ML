@@ -1,67 +1,83 @@
 import pandas as pd
-
-pd.set_option('display.max_rows', 20)
-pd.set_option('display.max_columns', 20)
-pd.set_option('display.width', 1000)
+import json
 
 
-def create_dataframe(file, orient):
+def load_json_file(file):
+    with open(file, 'r') as f:
+        data = json.load(f)
+
+    return data
+
+def create_dataframe(file, is_feature):
+    # Initialize the DataFrame
     df = None
 
-    # Load the JSON file into a DataFrame
-    if orient:
-        df = pd.read_json(file, orient='index')
+    if not is_feature:
+        # Open and load the JSON files into a dictionary
+        data_final_dict = load_json_file(file)
+
+        # Convert the JSON data into a DataFrame
+        df = pd.json_normalize(data_final_dict, record_path=['data'])
+
+        # Rename the columns to match the JSON keys
+        df.rename(columns={'id': 'Node ID', 'group': 'Group', 'timestep': 'Timestep', 'edges': 'Edges'}, inplace=True)
+
+        # Print the DataFrame
+        print("\n\n" + "=" * 100)
+        print("Final Data DataFrame")
+        print("=" * 100 + "\n")
+        print(df)
+
+
+        # Convert the 'Node ID' and 'Timestep' columns to int64 and float64 data types.
+        df['Node ID'] = df['Node ID'].astype('int64')
+
     else:
-        df = pd.read_json(file)
+        # Column Names for the CSV
+        column_names = ['Node ID', 'Timestep'] + [f'Feature {i}' for i in range(2, 167)]
 
-    # Print the DataFrame
-    print(df)
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(file, header=None, names=column_names)
 
-    # Divider for the output
-    print("\n" + "=" * 100 + "\n")
+        # Drop the column 'Timestep' because we have it in the 'data_final' DataFrame
+        df.drop(columns=['Timestep'], inplace=True)
 
-    # Return the DataFrame
+        # Print the DataFrame
+        print("\n\n" + "=" * 100)
+        print("Features DataFrame")
+        print("=" * 100 + "\n")
+        print(df)
+
+    # Print divider
+    print("\n\n" + "=" * 100)
+    print("=" * 100 + "\n")
+
     return df
 
+def merge_dataframes(data_final, features):
+    # Merge the DataFrames on 'Node ID'
+    df = pd.merge(data_final, features, on=['Node ID'], how='inner')
 
-def create_file(file, data):
-    with open(file, 'w') as f:
-        f.write(data)
+    # Print the DataFrame
+    print("\n" + "=" * 100)
+    print("Merged DataFrame")
+    print("=" * 100 + "\n")
+    print(df)
 
-
-def convert_features_to_json(file, new_file='../data/features.json'):
-    # Features CSV file
-    df2 = pd.read_csv(file, header=None)
-
-    # Since the first column is the Node ID, set it as the index
-    df2.set_index(0, inplace=True)
-
-    # Convert the DataFrame to a JSON format
-    json_results = df2.to_json(orient='index')
-
-    # Save the JSON as a file
-    create_file(new_file, json_results)
+    # Print divider
+    print("\n\n" + "=" * 100)
+    print("=" * 100 + "\n")
 
 
 def main():
     # Initialize the data_final DataFrame
-    data_final = create_dataframe('../data/data_final.json', False)
-
-    # Convert the features CSV file to a JSON file (Call this function only once to create the
-    # JSON file)
-    convert_features_to_json("../data/elliptic_txs_features.csv")
+    data_final_df = create_dataframe('data\data_final.json', False)
 
     # Initialize the features DataFrame
-    features = create_dataframe('../data/features.json', True)
+    features_df = create_dataframe('data\elliptic_txs_features.csv', True)
 
-    # Combine the DataFrames into a single DataFrame matching the Node ID
-    combined = pd.merge(data_final, features, left_index=True, right_index=True)
-
-    # Print the combined DataFrame
-    print(combined)
-
-    # Divider for the output
-    print("\n" + "=" * 100 + "\n")
+    # Merge the DataFrames
+    combined_df = merge_dataframes(data_final_df, features_df)
 
 
 if __name__ == '__main__':
