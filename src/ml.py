@@ -9,6 +9,7 @@ def load_json_file(file):
 
     return data
 
+
 def create_dataframe(file, is_feature):
     # Initialize the DataFrame
     df = None
@@ -21,14 +22,15 @@ def create_dataframe(file, is_feature):
         df = pd.json_normalize(data_final_dict, record_path=['data'])
 
         # Rename the columns to match the JSON keys
-        df.rename(columns={'id': 'Node ID', 'group': 'Group', 'timestep': 'Timestep', 'edges': 'Edges'}, inplace=True)
+        df.rename(
+            columns={'id': 'Node ID', 'group': 'Group', 'timestep': 'Timestep', 'edges': 'Edges'},
+            inplace=True)
 
         # Print the DataFrame
         print("\n\n" + "=" * 100)
         print("Final Data DataFrame")
         print("=" * 100 + "\n")
         print(df)
-
 
         # Convert the 'Node ID' and 'Timestep' columns to int64 and float64 data types.
         df['Node ID'] = df['Node ID'].astype('int64')
@@ -55,6 +57,7 @@ def create_dataframe(file, is_feature):
 
     return df
 
+
 def merge_dataframes(data_final, features):
     # Merge the DataFrames on 'Node ID'
     df = pd.merge(data_final, features, on=['Node ID'], how='inner')
@@ -69,15 +72,19 @@ def merge_dataframes(data_final, features):
     print("\n\n" + "=" * 100)
     print("=" * 100 + "\n")
 
+    return df
+
+
 def visualize_correlation_heatmap(df):
     correlation_df = df.corr()
-    figure, axis = plt.subplots(figsize=(10,8))
+    figure, axis = plt.subplots(figsize=(10, 8))
     color_axis = axis.matshow(correlation_df, cmap='coolwarm')
     figure.colorbar(color_axis)
     plt.xticks(range(len(correlation_df.columns)), correlation_df.columns, rotation=90)
     plt.yticks(range(len(correlation_df.columns)), correlation_df.columns)
     plt.title('Correlation Heatmap', y=-0.1)
     plt.show()
+
 
 def main():
     # Initialize the data_final DataFrame
@@ -88,9 +95,10 @@ def main():
 
     # Merge the DataFrames
     combined_df = merge_dataframes(data_final_df, features_df)
-    
+
     # Show correlation heatmap
     visualize_correlation_heatmap(combined_df)
+
 
 if __name__ == '__main__':
     main()
