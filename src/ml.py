@@ -131,25 +131,35 @@ def merge_dataframes(data_final, features):
 def machine_learning(df):
     # Extract the feature columns into X
     X = df.iloc[:, 2:]
-    print_dataframe(X, "Features")
+    print_dataframe(X, "Features for Machine Learning")
     print_divider()
 
     # Extract the group column into y
     y = df["Group"]
-    print_dataframe(y, "Groups")
+    print_dataframe(y, "Groups for Machine Learning")
     print_divider()
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
 
+    print("Split the data into traning and testing sets")
+
     # Creating the Random Forest Classifier
     random_forest_classifier = RandomForestClassifier(n_estimators=100)
+
+    print("Created the Random Forest Classifier")
+
+    print("Starting to train the model...")
 
     # Train the model using the training sets
     random_forest_classifier.fit(X_train, y_train)
 
+    print("Model has been trained")
+
     # Predict the response for the test dataset
     y_pred = random_forest_classifier.predict(X_test)
+
+    print("Predicted the response for the test dataset")
 
     # Print the accuracy of the model
     print(f"Accuracy: {random_forest_classifier.score(X_test, y_test)}")
