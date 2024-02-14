@@ -3,11 +3,14 @@ import json
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
+import joblib
 
 WINDOWS_PATH_1 = 'data\data_final.json'
 WINDOWS_PATH_2 = 'data\elliptic_txs_features.csv'
 LINUX_PATH_1 = '../data/data_final.json'
 LINUX_PATH_2 = '../data/elliptic_txs_features.csv'
+MODEL_SAVE_PATH_LINUX = '../model/'
+MODEL_EXTENSION = '.joblib'
 
 
 def get_edges_dataframe(df):
@@ -140,12 +143,12 @@ def machine_learning(df):
     print_divider()
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.40)
 
     print("Split the data into traning and testing sets")
 
     # Creating the Random Forest Classifier
-    random_forest_classifier = RandomForestClassifier(n_estimators=100)
+    random_forest_classifier = RandomForestClassifier(n_estimators=100, verbose=3)
 
     print("Created the Random Forest Classifier")
 
@@ -163,9 +166,19 @@ def machine_learning(df):
 
     # Print the accuracy of the model
     print(f"Accuracy: {random_forest_classifier.score(X_test, y_test)}")
-
+    
+    # Saving the model
+    print(f"Saving the model to {MODEL_SAVE_PATH_LINUX}")
+    joblib.dump(random_forest_classifier, MODEL_SAVE_PATH_LINUX)
 
 def main():
+    global MODEL_SAVE_PATH_LINUX
+    
+    # Ask the user for the file name for the model
+    file_name = input("Enter the file name for the final model: ")
+
+    MODEL_SAVE_PATH_LINUX = MODEL_SAVE_PATH_LINUX + file_name + MODEL_EXTENSION
+
     # Initialize the data_final DataFrame
     data_final_df = create_dataframe(LINUX_PATH_1, False)
 
