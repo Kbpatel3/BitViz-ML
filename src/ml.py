@@ -83,6 +83,9 @@ def build_json_dataframe(file):
     # Convert the 'Node ID' and 'Timestep' columns to int64 and float64 data types.
     df['Node ID'] = df['Node ID'].astype('int64')
 
+    # Convert the 'Group' column to int64 data type
+    df['Group'] = df['Group'].astype('int64')
+
     # Extract edges into a separate DataFrame
     edges_df = get_edges_dataframe(df)
 
@@ -135,6 +138,13 @@ def machine_learning(df):
     # Separate the instances where the group is 3
     df_predict = df[df['Group'] == 3]
     df_train_test = df[df['Group'] != 3]
+
+    # Print the DataFrames
+    print_dataframe(df_predict, "Predict Data")
+    print_dataframe(df_train_test, "Train and Test Data")
+    # Print the type of data for the group column
+    print(f"Group Data Type: {df_train_test['Group'].dtype}")
+    exit(4)
 
     # Extract the feature columns into X
     X = df_train_test.iloc[:, 2:]
