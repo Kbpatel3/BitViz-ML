@@ -132,13 +132,17 @@ def merge_dataframes(data_final, features):
 
 
 def machine_learning(df):
+    # Separate the instances where the group is 3
+    df_predict = df[df['Group'] == 3]
+    df_train_test = df[df['Group'] != 3]
+
     # Extract the feature columns into X
-    X = df.iloc[:, 2:]
+    X = df_train_test.iloc[:, 2:]
     print_dataframe(X, "Features for Machine Learning")
     print_divider()
 
     # Extract the group column into y
-    y = df["Group"]
+    y = df_train_test["Group"]
     print_dataframe(y, "Groups for Machine Learning")
     print_divider()
 
@@ -166,14 +170,25 @@ def machine_learning(df):
 
     # Print the accuracy of the model
     print(f"Accuracy: {random_forest_classifier.score(X_test, y_test)}")
-    
+
     # Saving the model
     print(f"Saving the model to {MODEL_SAVE_PATH_LINUX}")
     joblib.dump(random_forest_classifier, MODEL_SAVE_PATH_LINUX)
 
+    # Fit the trained model to the prediction data
+    y_predict = random_forest_classifier.predict(df_predict.iloc[:, 2:])
+
+    # Change the 3's to the predicted values
+    df_predict['Group'] = y_predict
+
+    # Print the DataFrame
+    print_dataframe(df_predict, "Predicted Data")
+    print_divider()
+
+
 def main():
     global MODEL_SAVE_PATH_LINUX
-    
+
     # Ask the user for the file name for the model
     file_name = input("Enter the file name for the final model: ")
 
