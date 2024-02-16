@@ -144,7 +144,7 @@ def machine_learning(df):
     print_dataframe(df_train_test, "Train and Test Data")
     # Print the type of data for the group column
     print(f"Group Data Type: {df_train_test['Group'].dtype}")
-    exit(4)
+    #exit(4)
 
     # Extract the feature columns into X
     X = df_train_test.iloc[:, 2:]
