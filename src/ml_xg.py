@@ -4,6 +4,7 @@ from xgboost import XGBRFClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
+from sklearn.preprocessing import LabelEncoder
 
 WINDOWS_PATH_1 = 'data\data_final.json'
 WINDOWS_PATH_2 = 'data\elliptic_txs_features.csv'
@@ -125,6 +126,9 @@ def merge_dataframes(data_final, features):
     # Rename the Timestep column to 'Feature 1' since it is the first feature from the original CSV
     df.rename(columns={'Timestep': 'Feature 1'}, inplace=True)
 
+    # Convert the 'Feature 1' column to float64 data type
+    df["Feature 1"] = df["Feature 1"].astype('float64')
+
     # Print the DataFrame
     print_dataframe(df, "Combined Data")
 
@@ -159,6 +163,13 @@ def machine_learning(df):
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
 
+    # !this may have an effect on the accuracy of the model
+    print("Y:", y_train)
+    le = LabelEncoder()
+    y_train = le.fit_transform(y_train)
+    y_test = le.transform(y_test)
+    print("Y2:", y_train)
+
     print("Split the data into traning and testing sets")
 
     # Creating the Random Forest Classifier
@@ -180,7 +191,6 @@ def machine_learning(df):
 
     # Print the accuracy of the model
     print(f"Accuracy: {random_forest_classifier.score(X_test, y_test)}")
-    print(f"Accuracy2: {accuracy_score(y_test, y_pred)}")
 
     # Saving the model
     print(f"Saving the model to {MODEL_SAVE_PATH_LINUX}")
