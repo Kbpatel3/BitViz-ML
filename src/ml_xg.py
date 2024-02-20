@@ -163,16 +163,14 @@ def machine_learning(df):
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
 
-    # !this may have an effect on the accuracy of the model
-    print("Y:", y_train)
+    # Encode the group column - xgboost requires the target variable to be [0 1] rather than [1 2]
     le = LabelEncoder()
     y_train = le.fit_transform(y_train)
     y_test = le.transform(y_test)
-    print("Y2:", y_train)
 
     print("Split the data into traning and testing sets")
 
-    # Creating the Random Forest Classifier
+    # Creating the xgboost Random Forest Classifier
     random_forest_classifier = XGBRFClassifier(n_estimators=100, verbosity=2)
 
     print("Created the Random Forest Classifier")
