@@ -161,7 +161,7 @@ def machine_learning(df):
     print_divider()
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.40)
 
     # !this may have an effect on the accuracy of the model
     print("Y:", y_train)
@@ -173,7 +173,7 @@ def machine_learning(df):
     print("Split the data into traning and testing sets")
 
     # Creating the Random Forest Classifier
-    random_forest_classifier = XGBRFClassifier(n_estimators=100, verbosity=2)
+    random_forest_classifier = XGBRFClassifier(n_estimators=200, verbosity=2)
 
     print("Created the Random Forest Classifier")
 
@@ -230,3 +230,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

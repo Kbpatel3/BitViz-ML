@@ -157,7 +157,7 @@ def machine_learning(df):
     print_divider()
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.40)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
 
     print("Split the data into traning and testing sets")
 
