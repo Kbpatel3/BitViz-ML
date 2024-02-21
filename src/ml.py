@@ -496,6 +496,10 @@ def main():
     # User input to ask if the user wants to start machine learning
     df_predict = start_ml(combined_df)
 
+    # Print the percentage of nodes that are group 1 and the percentage of nodes that are group 2
+    print("Percentage of Classification")
+    print(df_predict['Group'].value_counts(normalize=True))
+
     # Loop to query the predicted data
     user_query(df_predict)
 
