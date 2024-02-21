@@ -46,7 +46,7 @@ def get_edges_dataframe(df):
     #print_dataframe(edges_df, "Edges")
 
     # Print divider
-    print_divider()
+    #print_divider()
 
     return edges_df
 
