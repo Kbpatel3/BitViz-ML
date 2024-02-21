@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 import joblib
 
-### CONSTANTS ###
+# CONSTANTS
 
 # Windows Paths to the data files
 WINDOWS_PATH_1 = 'data\data_final.json'
@@ -19,7 +19,8 @@ LINUX_PATH_2 = '../data/elliptic_txs_features.csv'
 MODEL_SAVE_PATH_LINUX = '../model/'
 MODEL_EXTENSION = '.joblib'
 
-### FUNCTIONS ###
+
+# FUNCTIONS
 
 def get_edges_dataframe(df):
     """
@@ -42,7 +43,7 @@ def get_edges_dataframe(df):
                     inplace=True)
 
     # Print the DataFrame
-    print_dataframe(edges_df, "Edges")
+    #print_dataframe(edges_df, "Edges")
 
     # Print divider
     print_divider()
@@ -142,7 +143,9 @@ def build_json_dataframe(file):
 
 def create_dataframe(file, is_feature):
     """
-    Creates a DataFrame from the specified file. If the file is a JSON file, it will be converted into a DataFrame using the build_json_dataframe function. If the file is a CSV file, it will be read into a DataFrame using the build_csv_dataframe function.
+    Creates a DataFrame from the specified file. If the file is a JSON file, it will be converted
+    into a DataFrame using the build_json_dataframe function. If the file is a CSV file,
+    it will be read into a DataFrame using the build_csv_dataframe function.
 
     :param file: The file to create the DataFrame from
     :param is_feature: A boolean to indicate if the file is a feature file
@@ -178,11 +181,15 @@ def merge_dataframes(data_final, features):
 
     return df
 
+
 def separate_unknown(df):
     """
-    Separates the DataFrame into two DataFrames. One with the instances where the group is 3 (unknown group) and another with the instances where the group is not 3 (Illicit or Licit group)
+    Separates the DataFrame into two DataFrames. One with the instances where the group is 3 (
+    unknown group) and another with the instances where the group is not 3 (Illicit or Licit
+    group)
     :param df: The DataFrame to separate
-    :return: Two DataFrames. One with the instances where the group is 3 (unknown group) and another with the instances where the group is not 3 (Illicit or Licit group)
+    :return: Two DataFrames. One with the instances where the group is 3 (unknown group) and
+    another with the instances where the group is not 3 (Illicit or Licit group)
     """
 
     # Separate the instances where the group is 3 (unknown group)
@@ -191,8 +198,11 @@ def separate_unknown(df):
     # Separate the instances where the group is not 3 (Illicit or Licit group)
     df_train_test = df[df['Group'] != 3]
 
-    # df_predict will be the transactions with unknown classificaiton and df_train_test will be the transactions with known classification which will be used for training and testing the model
+    # df_predict will be the transactions with unknown classificaiton and df_train_test will be
+    # the transactions with known classification which will be used for training and testing the
+    # model
     return df_predict, df_train_test
+
 
 def extract_features_and_groups(df_train_test):
     """
@@ -209,7 +219,8 @@ def extract_features_and_groups(df_train_test):
 
     return X, y
 
-def train_test_split(X, y):
+
+def split_data_train_test(X, y):
     """
     Splits the data into training and testing sets and returns the split data sets
     :param X: The features
@@ -222,7 +233,8 @@ def train_test_split(X, y):
 
     try:
         # Ask the user to enter the percentage of the data to be used for testing
-        user_test_size = float(input("Enter the percentage of the data to be used for testing (0.0 - 1.0): "))
+        user_test_size = float(
+            input("Enter the percentage of the data to be used for testing (0.0 - 1.0): "))
     except ValueError:
         print("You did not enter a valid number. Defaulting to 0.3 for a 70/30 split")
 
@@ -230,6 +242,7 @@ def train_test_split(X, y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=user_test_size)
 
     return X_train, X_test, y_train, y_test
+
 
 def create_random_forest_classifier():
     """
@@ -242,9 +255,11 @@ def create_random_forest_classifier():
 
     return random_forest_classifier
 
+
 def train_and_test_model(random_forest_classifier, X_train, y_train, X_test):
     """
-    Trains the model using the training sets and predicts the response for the test dataset using the trained model and returns the predicted response.
+    Trains the model using the training sets and predicts the response for the test dataset using
+    the trained model and returns the predicted response.
     :param random_forest_classifier: The Random Forest Classifier
     :param X_train: The training features
     :param y_train: The training groups
@@ -266,6 +281,7 @@ def train_and_test_model(random_forest_classifier, X_train, y_train, X_test):
 
     return y_pred
 
+
 def save_model(model, save_path):
     """
     Saves the model to the specified path
@@ -278,9 +294,11 @@ def save_model(model, save_path):
     print(f"Saving the model to {save_path}")
     joblib.dump(model, save_path)
 
+
 def predict_all_unknown(model, df_predict):
     """
-    Predicts the group for all unknown transactions and returns the DataFrame with the predicted groups
+    Predicts the group for all unknown transactions and returns the DataFrame with the predicted
+    groups.
     :param model: The trained model
     :param df_predict: The DataFrame with the unknown transactions
     :return: The DataFrame with the predicted groups
@@ -297,9 +315,11 @@ def predict_all_unknown(model, df_predict):
 
     return df_predict
 
+
 def machine_learning(df):
     """
-    Performs machine learning on the DataFrame and saves the model to the specified path. Calls the necessary functions to perform machine learning.
+    Performs machine learning on the DataFrame and saves the model to the specified path. Calls the
+     necessary functions to perform machine learning.
     :param df: The DataFrame to perform machine learning on
     :return: None
     """
@@ -320,8 +340,7 @@ def machine_learning(df):
     print("Splitting the data into traning and testing sets")
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y)
-
+    X_train, X_test, y_train, y_test = split_data_train_test(X, y)
 
     print("Creating the Random Forest Classifier")
     random_forest_classifier = create_random_forest_classifier()
@@ -341,9 +360,11 @@ def machine_learning(df):
     # Predict all unknown transactions
     df_predict = predict_all_unknown(random_forest_classifier, df_predict)
 
+
 def user_print_input(data_final_df, features_df, combined_df):
     """
-    Asks the user if they want to print the dataframes and prints them if the user enters 'y' or 'Y' and does nothing if the user enters 'n' or 'N' or anything else.
+    Asks the user if they want to print the dataframes and prints them if the user enters 'y' or
+    'Y' and does nothing if the user enters 'n' or 'N' or anything else.
     :param data_final_df: The data_final DataFrame
     :param features_df: The features DataFrame
     :param combined_df: The combined DataFrame
@@ -359,9 +380,11 @@ def user_print_input(data_final_df, features_df, combined_df):
     else:
         print("Dataframes will not be printed")
 
+
 def start_ml(combined_df):
     """
-    Asks the user if they want to start machine learning and starts machine learning if the user enters 'y' or 'Y' and does nothing if the user enters 'n' or 'N' or anything else.
+    Asks the user if they want to start machine learning and starts machine learning if the user
+    enters 'y' or 'Y' and does nothing if the user enters 'n' or 'N' or anything else.
     :param combined_df: The combined DataFrame
     :return: None
     """
@@ -369,12 +392,12 @@ def start_ml(combined_df):
     # Reference the global variable to modify it
     global MODEL_SAVE_PATH_LINUX
 
-    start_ml = input("Do you want to start machine learning? (y/n): ")
+    start_ml_input = input("Do you want to start machine learning? (y/n): ")
 
-    if start_ml.lower() == 'n':
+    if start_ml_input.lower() == 'n':
         print("Machine Learning will not start")
         exit(0)
-    elif start_ml.lower() == 'y':
+    elif start_ml_input.lower() == 'y':
         print("Machine Learning will start")
 
         # Ask the user to enter the file name for the model to be saved
@@ -391,11 +414,16 @@ def start_ml(combined_df):
         print("Invalid input. Machine Learning will not start")
         exit(0)
 
+
 def main():
     """
-    The main function to run the program. Calls the necessary functions to perform the program of creating the DataFrames, merging them, and starting machine learning.
+    The main function to run the program. Calls the necessary functions to perform the program of
+    creating the DataFrames, merging them, and starting machine learning.
     :return: None
     """
+
+    # Let the user know that the program is going to be reading the data files
+    print("Reading the data files...")
 
     # Initialize the data_final DataFrame
     data_final_df = create_dataframe(LINUX_PATH_1, False)
@@ -407,7 +435,7 @@ def main():
     combined_df = merge_dataframes(data_final_df, features_df)
 
     # User input to ask if user wants to print the dataframes
-    user_print_input()
+    user_print_input(data_final_df, features_df, combined_df)
 
     # User input to ask if the user wants to start machine learning
     start_ml(combined_df)
