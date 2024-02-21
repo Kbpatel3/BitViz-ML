@@ -43,10 +43,10 @@ def get_edges_dataframe(df):
                     inplace=True)
 
     # Print the DataFrame
-    #print_dataframe(edges_df, "Edges")
+    # print_dataframe(edges_df, "Edges")
 
     # Print divider
-    #print_divider()
+    # print_divider()
 
     return edges_df
 
@@ -321,7 +321,7 @@ def machine_learning(df):
     Performs machine learning on the DataFrame and saves the model to the specified path. Calls the
      necessary functions to perform machine learning.
     :param df: The DataFrame to perform machine learning on
-    :return: None
+    :return: The trained model
     """
 
     df_predict, df_train_test = separate_unknown(df)
@@ -360,6 +360,9 @@ def machine_learning(df):
     # Predict all unknown transactions
     df_predict = predict_all_unknown(random_forest_classifier, df_predict)
 
+    # Return the updated DataFrame that was previously unknown
+    return df_predict
+
 
 def user_print_input(data_final_df, features_df, combined_df):
     """
@@ -386,7 +389,7 @@ def start_ml(combined_df):
     Asks the user if they want to start machine learning and starts machine learning if the user
     enters 'y' or 'Y' and does nothing if the user enters 'n' or 'N' or anything else.
     :param combined_df: The combined DataFrame
-    :return: None
+    :return: The DataFrame with the predicted groups that were previously unknown
     """
 
     # Reference the global variable to modify it
@@ -409,9 +412,62 @@ def start_ml(combined_df):
         print(f"Model will be saved to {MODEL_SAVE_PATH_LINUX}")
 
         # Start machine learning here
-        machine_learning(combined_df)
+        df_predict = machine_learning(combined_df)
     else:
         print("Invalid input. Machine Learning will not start")
+        exit(0)
+
+    return df_predict
+
+
+def query_data(df_predict):
+    """
+    Queries the predicted data and prints the results
+    :param df_predict: The DataFrame with the predicted groups that were previously unknown
+    :return: None
+    """
+
+    # Loop to ask the user for a Node ID to query
+    while True:
+        node_id = input("Enter a Node ID to query (Enter 'q' to quit): ")
+
+        if node_id.lower() == 'q':
+            print("Query will end")
+            exit(0)
+
+        try:
+            node_id = int(node_id)
+        except ValueError:
+            print("You did not enter a valid number. Try again")
+            continue
+
+        # Query the predicted data
+        query = df_predict[df_predict['Node ID'] == node_id]
+
+        # Print the query results
+        print_dataframe(query, "Query Results")
+
+
+def user_query(df_predict):
+    """
+    Asks the user if they want to query the predicted data and queries the predicted data if the
+    user enters 'y' or 'Y' and does nothing if the user enters 'n' or 'N' or anything else.
+    :param df_predict: The DataFrame with the predicted groups that were previously unknown
+    :return: None
+    """
+
+    query_input = input("Do you want to query the predicted data? (y/n): ")
+
+    if query_input.lower() == 'n':
+        print("Query will not start")
+        exit(0)
+    elif query_input.lower() == 'y':
+        print("Query will start")
+
+        # Start querying the predicted data here
+        query_data(df_predict)
+    else:
+        print("Invalid input. Query will not start")
         exit(0)
 
 
@@ -438,7 +494,10 @@ def main():
     user_print_input(data_final_df, features_df, combined_df)
 
     # User input to ask if the user wants to start machine learning
-    start_ml(combined_df)
+    df_predict = start_ml(combined_df)
+
+    # Loop to query the predicted data
+    user_query(df_predict)
 
 
 if __name__ == '__main__':
