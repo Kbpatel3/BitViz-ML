@@ -19,6 +19,10 @@ LINUX_PATH_2 = '../data/elliptic_txs_features.csv'
 MODEL_SAVE_PATH_LINUX = '../model/'
 MODEL_EXTENSION = '.joblib'
 
+# Data Structures for the JSON file
+nodes = []
+edges = []
+
 
 # FUNCTIONS
 
@@ -108,6 +112,40 @@ def build_csv_dataframe(file):
     return df
 
 
+def create_data_structure(data_final_dict):
+    """
+    Creates the data structure for the JSON file
+    :param data_final_dict: The dictionary with the JSON data
+    :return: None
+    """
+    global nodes
+    global edges
+
+    # Loop through the data in the JSON file
+    for data in data_final_dict['data']:
+        # Convert the group to an int64
+        data['group'] = int(data['group'])
+
+        # Append the 'id', 'group', and 'timestep' to the 'nodes' list
+        nodes.append({'id': data['id'], 'group': data['group'], 'timestep': data['timestep']})
+
+        # Loop through the edges in the data
+        for edge in data['edges']:
+            # Convert the group to an int64
+            edge['group'] = int(edge['group'])
+
+            # Append the 'id', 'timestep', and 'group' to the 'edges' list
+            edges.append({'from': data['id'], 'id': edge['id'], 'timestep': edge['timestep'],
+                          'group': edge['group']})
+
+    # Print the nodes and edges
+    #print(nodes)
+    #print(edges)
+
+    # Print divider
+    print_divider()
+
+
 def build_json_dataframe(file):
     """
     Builds a DataFrame from the JSON file and returns it
@@ -117,6 +155,9 @@ def build_json_dataframe(file):
 
     # Open and load the JSON files into a dictionary
     data_final_dict = load_json_file(file)
+
+    # Create the data structure for the JSON file
+    create_data_structure(data_final_dict)
 
     # Convert the JSON data into a DataFrame
     df = pd.json_normalize(data_final_dict, record_path=['data'])
@@ -149,11 +190,12 @@ def create_dataframe(file, is_feature):
 
     :param file: The file to create the DataFrame from
     :param is_feature: A boolean to indicate if the file is a feature file
-    :return: A DataFrame with the data from the file
+    :return: A DataFrame with the data from the file and a DataFrame with the edges data if the
     """
 
     # Initialize the DataFrame
     df = None
+    edges_df = None
 
     if not is_feature:
         # Convert the JSON data into a DataFrame
@@ -162,7 +204,7 @@ def create_dataframe(file, is_feature):
         # Read the CSV file into a DataFrame
         df = build_csv_dataframe(file)
 
-    return df
+    return df, edges_df
 
 
 def merge_dataframes(data_final, features):
@@ -395,11 +437,13 @@ def start_ml(combined_df):
     # Reference the global variable to modify it
     global MODEL_SAVE_PATH_LINUX
 
+    # Initialize the return DataFrame
+    df_predict = None
+
     start_ml_input = input("Do you want to start machine learning? (y/n): ")
 
     if start_ml_input.lower() == 'n':
         print("Machine Learning will not start")
-        exit(0)
     elif start_ml_input.lower() == 'y':
         print("Machine Learning will start")
 
@@ -460,7 +504,6 @@ def user_query(df_predict):
 
     if query_input.lower() == 'n':
         print("Query will not start")
-        exit(0)
     elif query_input.lower() == 'y':
         print("Query will start")
 
@@ -471,21 +514,79 @@ def user_query(df_predict):
         exit(0)
 
 
+def export_data(features_df):
+    """
+    Exports the trained data to a JSON in the same format as the original data_final.json
+    :return: None
+    """
+    """
+    Format of the JSON file:
+    {
+        "data": [
+            {
+                "id": 0,
+                "group": 1,
+                "timestep": 1,
+                "edges": [
+                    {
+                        "id": 1,
+                        "timestep": 1,
+                        "group": 1
+                    }
+                ]
+            }
+        ]
+    }
+    """
+    # Load the model from the file
+    model = joblib.load(MODEL_SAVE_PATH_LINUX + "rfm_elliptic_data_set_7030" + MODEL_EXTENSION)
+
+    predictions = model.predict(features_df)
+
+    print_dataframe(predictions, "Predictions")
+    exit(1)
+
+    # Predict the group values for both nodes and edges dictionary
+    for node in nodes:
+        # Predict the group value for the node
+        node['group'] = model.predict([node['id']])[0]
+
+    for edge in edges:
+        # Predict the group value for the edge
+        edge['group'] = model.predict([edge['id']])[0]
+
+    # Create the dictionary to be saved as a JSON
+    data = {'data': nodes}
+
+    # Map the edges to the nodes based on the 'from' key
+    for node in nodes:
+        node['edges'] = []
+        for edge in edges:
+            if edge['from'] == node['id']:
+                node['edges'].append(edge)
+
+    # Save the dictionary as a JSON file
+    with open(MODEL_SAVE_PATH_LINUX + "predicted_data_final.json", 'w') as f:
+        json.dump(data, f, indent=4)
+
+
 def main():
     """
     The main function to run the program. Calls the necessary functions to perform the program of
     creating the DataFrames, merging them, and starting machine learning.
     :return: None
     """
+    global nodes
+    global edges
 
     # Let the user know that the program is going to be reading the data files
     print("Reading the data files...")
 
     # Initialize the data_final DataFrame
-    data_final_df = create_dataframe(LINUX_PATH_1, False)
+    data_final_df, edges_df = create_dataframe(LINUX_PATH_1, False)
 
     # Initialize the features DataFrame
-    features_df = create_dataframe(LINUX_PATH_2, True)
+    features_df, no_use = create_dataframe(LINUX_PATH_2, True)
 
     # Merge the DataFrames
     combined_df = merge_dataframes(data_final_df, features_df)
@@ -497,11 +598,14 @@ def main():
     df_predict = start_ml(combined_df)
 
     # Print the percentage of nodes that are group 1 and the percentage of nodes that are group 2
-    print("Percentage of Classification")
-    print(df_predict['Group'].value_counts(normalize=True))
+    # print("Percentage of Classification")
+    # print(df_predict['Group'].value_counts(normalize=True))
 
     # Loop to query the predicted data
     user_query(df_predict)
+
+    # Predict the group values for both nodes and edges dictionary
+    export_data(features_df)
 
 
 if __name__ == '__main__':
