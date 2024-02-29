@@ -139,11 +139,11 @@ def create_data_structure(data_final_dict):
                           'group': edge['group']})
 
     # Print the nodes and edges
-    #print(nodes)
-    #print(edges)
+    # print(nodes)
+    # print(edges)
 
     # Print divider
-    #print_divider()
+    # print_divider()
 
 
 def build_json_dataframe(file):
@@ -402,8 +402,11 @@ def machine_learning(df):
     # Predict all unknown transactions
     df_predict = predict_all_unknown(random_forest_classifier, df_predict)
 
+    # Combine the predicted data with the known data
+    df = pd.concat([df_predict, df_train_test])
+
     # Return the updated DataFrame that was previously unknown
-    return df_predict, random_forest_classifier
+    return df
 
 
 def user_print_input(data_final_df, features_df, combined_df):
@@ -438,10 +441,7 @@ def start_ml(combined_df):
     global MODEL_SAVE_PATH_LINUX
 
     # Initialize the return DataFrame
-    df_predict = None
-
-    # Initialize the model
-    model = None
+    df_final = None
 
     start_ml_input = input("Do you want to start machine learning? (y/n): ")
 
@@ -459,12 +459,12 @@ def start_ml(combined_df):
         print(f"Model will be saved to {MODEL_SAVE_PATH_LINUX}")
 
         # Start machine learning here
-        df_predict, model = machine_learning(combined_df)
+        df_final = machine_learning(combined_df)
     else:
         print("Invalid input. Machine Learning will not start")
         exit(0)
 
-    return df_predict, model
+    return df_final
 
 
 def query_data(df_predict):
@@ -517,7 +517,28 @@ def user_query(df_predict):
         exit(0)
 
 
-def export_data(features_df, model):
+def update_group_values(df_final):
+    global nodes
+    global edges
+
+    # Change group values in nodes and edges to the values in the combined_df
+
+    # Update nodes
+    for node in nodes:
+        row = df_final[df_final['Node ID'] == int(node['id'])]
+
+        if not row.empty:
+            node['group'] = str(row['Group'])
+
+    # Update edges
+    for edge in edges:
+        row = df_final[df_final['Node ID'] == int(edge['from'])]
+
+        if not row.empty:
+            edge['group'] = str(row['Group'])
+
+
+def export_data(df_final):
     """
     Exports the trained data to a JSON in the same format as the original data_final.json
     :return: None
@@ -541,22 +562,9 @@ def export_data(features_df, model):
         ]
     }
     """
-    # Load the model from the file
-    #model = joblib.load(MODEL_SAVE_PATH_LINUX + "rfm_elliptic_data_set_7030" + MODEL_EXTENSION)
 
-    predictions = model.predict(features_df)
-
-    print_dataframe(predictions, "Predictions")
-    exit(1)
-
-    # Predict the group values for both nodes and edges dictionary
-    for node in nodes:
-        # Predict the group value for the node
-        node['group'] = model.predict([node['id']])[0]
-
-    for edge in edges:
-        # Predict the group value for the edge
-        edge['group'] = model.predict([edge['id']])[0]
+    # Change group values in nodes and edges to the values in the combined_df
+    update_group_values(df_final)
 
     # Create the dictionary to be saved as a JSON
     data = {'data': nodes}
@@ -598,17 +606,18 @@ def main():
     user_print_input(data_final_df, features_df, combined_df)
 
     # User input to ask if the user wants to start machine learning
-    df_predict, model = start_ml(combined_df)
+    df_final = start_ml(combined_df)
 
     # Print the percentage of nodes that are group 1 and the percentage of nodes that are group 2
     # print("Percentage of Classification")
     # print(df_predict['Group'].value_counts(normalize=True))
 
     # Loop to query the predicted data
-    user_query(df_predict)
+    if df_final is not None:
+        user_query(df_final)
 
-    # Predict the group values for both nodes and edges dictionary
-    export_data(features_df, model)
+        # Predict the group values for both nodes and edges dictionary
+        export_data(df_final)
 
 
 if __name__ == '__main__':
