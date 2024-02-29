@@ -143,7 +143,7 @@ def create_data_structure(data_final_dict):
     #print(edges)
 
     # Print divider
-    print_divider()
+    #print_divider()
 
 
 def build_json_dataframe(file):
@@ -403,7 +403,7 @@ def machine_learning(df):
     df_predict = predict_all_unknown(random_forest_classifier, df_predict)
 
     # Return the updated DataFrame that was previously unknown
-    return df_predict
+    return df_predict, random_forest_classifier
 
 
 def user_print_input(data_final_df, features_df, combined_df):
@@ -440,6 +440,9 @@ def start_ml(combined_df):
     # Initialize the return DataFrame
     df_predict = None
 
+    # Initialize the model
+    model = None
+
     start_ml_input = input("Do you want to start machine learning? (y/n): ")
 
     if start_ml_input.lower() == 'n':
@@ -456,12 +459,12 @@ def start_ml(combined_df):
         print(f"Model will be saved to {MODEL_SAVE_PATH_LINUX}")
 
         # Start machine learning here
-        df_predict = machine_learning(combined_df)
+        df_predict, model = machine_learning(combined_df)
     else:
         print("Invalid input. Machine Learning will not start")
         exit(0)
 
-    return df_predict
+    return df_predict, model
 
 
 def query_data(df_predict):
@@ -514,7 +517,7 @@ def user_query(df_predict):
         exit(0)
 
 
-def export_data(features_df):
+def export_data(features_df, model):
     """
     Exports the trained data to a JSON in the same format as the original data_final.json
     :return: None
@@ -539,7 +542,7 @@ def export_data(features_df):
     }
     """
     # Load the model from the file
-    model = joblib.load(MODEL_SAVE_PATH_LINUX + "rfm_elliptic_data_set_7030" + MODEL_EXTENSION)
+    #model = joblib.load(MODEL_SAVE_PATH_LINUX + "rfm_elliptic_data_set_7030" + MODEL_EXTENSION)
 
     predictions = model.predict(features_df)
 
@@ -595,7 +598,7 @@ def main():
     user_print_input(data_final_df, features_df, combined_df)
 
     # User input to ask if the user wants to start machine learning
-    df_predict = start_ml(combined_df)
+    df_predict, model = start_ml(combined_df)
 
     # Print the percentage of nodes that are group 1 and the percentage of nodes that are group 2
     # print("Percentage of Classification")
@@ -605,7 +608,7 @@ def main():
     user_query(df_predict)
 
     # Predict the group values for both nodes and edges dictionary
-    export_data(features_df)
+    export_data(features_df, model)
 
 
 if __name__ == '__main__':
