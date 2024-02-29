@@ -528,14 +528,18 @@ def update_group_values(df_final):
         row = df_final[df_final['Node ID'] == int(node['id'])]
 
         if not row.empty:
-            node['group'] = str(row['Group'])
+            # Get the group value from the row
+            group = row['Group'].values[0]
+            node['group'] = str(group)
 
     # Update edges
     for edge in edges:
         row = df_final[df_final['Node ID'] == int(edge['from'])]
 
         if not row.empty:
-            edge['group'] = str(row['Group'])
+            # Get the group value from the row
+            group = row['Group'].values[0]
+            edge['group'] = str(group)
 
 
 def export_data(df_final):
@@ -574,11 +578,13 @@ def export_data(df_final):
         node['edges'] = []
         for edge in edges:
             if edge['from'] == node['id']:
-                node['edges'].append(edge)
+                # Add the edge to the node but don't include the 'from' key
+                node['edges'].append({key: value for key, value in edge.items() if key != 'from'})
 
     # Save the dictionary as a JSON file
-    with open(MODEL_SAVE_PATH_LINUX + "predicted_data_final.json", 'w') as f:
-        json.dump(data, f, indent=4)
+    print("Saving the predicted data to predicted_data_final.json")
+    with open("../model/predicted_data_final.json", 'w') as f:
+        json.dump(data, f, indent=2)
 
 
 def main():
