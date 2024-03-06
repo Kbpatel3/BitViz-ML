@@ -134,6 +134,29 @@ def get_range_edge_data(data, min_edge_count, max_edge_count, filename):
     write_data(range_edge, filename)
 
 
+def get_min_edge_illicit_data(data, min_edge_count, filename):
+    """
+    Get the data with a minimum edge count and illicit
+
+    Args:
+    data: the final data
+    min_edge_count: the minimum edge count
+    filename: the name of the file to write the data with the minimum edge count to
+    """
+    # Initialize the list of data with the minimum edge count
+    min_edge_illicit = []
+
+    # Loop through the data
+    for transaction in data["data"]:
+        # If the number of edges is greater than or equal to the minimum edge count, then we
+        # keep it
+        if len(transaction["edges"]) >= min_edge_count and is_illicit(transaction):
+            min_edge_illicit.append(transaction)
+
+    # Write the data with the minimum edge count to a file
+    write_data(min_edge_illicit, filename)
+
+
 def main():
     """
     Main function
@@ -186,6 +209,19 @@ def main():
     # Let the user know that the data has been filtered
     print('Data has been filtered to include only include transactions with edges that are between'
           'X and Y.')
+
+    # Let the user know that the data is being filtered to include only nodes with minimum of 3
+    # edges and include only nodes with illicit in the chain
+    print('Filtering the data to include only nodes with minimum of 3 edges and include only nodes'
+          'with illicit in the chain...')
+
+    # Filter the data to include only nodes with minimum of 3 edges and include only nodes with
+    # illicit in the chain
+    get_min_edge_illicit_data(data, 3, 'data_min_3_edge_illicit.json')
+
+    # Let the user know that the data has been filtered
+    print('Data has been filtered to include only nodes with minimum of 3 edges and include only'
+          'nodes with illicit in the chain.')
 
     # Print that the program has finished and how long it took
     print(f"Program finished. It took {time.time() - start_time} seconds.")
