@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import json
 from sklearn.model_selection import train_test_split
@@ -7,17 +8,18 @@ import joblib
 
 # CONSTANTS
 
-# Windows Paths to the data files
-WINDOWS_PATH_1 = 'data\data_final.json'
-WINDOWS_PATH_2 = 'data\elliptic_txs_features.csv'
+# # Windows Paths to the data files
+# WINDOWS_PATH_1 = 'data\data_final.json'
+# WINDOWS_PATH_2 = 'data\elliptic_txs_features.csv'
 
-# Linux Paths to the data files
-LINUX_PATH_1 = '../data/data_final.json'
-LINUX_PATH_2 = '../data/elliptic_txs_features.csv'
+# # Linux Paths to the data files
+# LINUX_PATH_1 = '../data/data_final.json'
+# LINUX_PATH_2 = '../data/elliptic_txs_features.csv'
 
 # Model Save Path and Extension
 MODEL_SAVE_PATH_LINUX = '../model/'
 MODEL_EXTENSION = '.joblib'
+MODEL_SAVE_PATH_WINDOWS = '..\model'
 
 # Data Structures for the JSON file
 nodes = []
@@ -397,7 +399,8 @@ def machine_learning(df):
     print(f"Accuracy: {random_forest_classifier.score(X_test, y_test)}")
 
     # Saving the model
-    save_model(random_forest_classifier, MODEL_SAVE_PATH_LINUX)
+    #save_model(random_forest_classifier, MODEL_SAVE_PATH_LINUX)
+    save_model(random_forest_classifier, MODEL_SAVE_PATH_WINDOWS)
 
     # Predict all unknown transactions
     df_predict = predict_all_unknown(random_forest_classifier, df_predict)
@@ -438,7 +441,8 @@ def start_ml(combined_df):
     """
 
     # Reference the global variable to modify it
-    global MODEL_SAVE_PATH_LINUX
+    #global MODEL_SAVE_PATH_LINUX
+    global MODEL_SAVE_PATH_WINDOWS
 
     # Initialize the return DataFrame
     df_final = None
@@ -454,9 +458,11 @@ def start_ml(combined_df):
         file_name = input("Enter the file name for the final model: ")
 
         # Set the model save path
-        MODEL_SAVE_PATH_LINUX = MODEL_SAVE_PATH_LINUX + file_name + MODEL_EXTENSION
+        #MODEL_SAVE_PATH_LINUX = MODEL_SAVE_PATH_LINUX + file_name + MODEL_EXTENSION
+        MODEL_SAVE_PATH_WINDOWS = MODEL_SAVE_PATH_WINDOWS + file_name + MODEL_EXTENSION
 
-        print(f"Model will be saved to {MODEL_SAVE_PATH_LINUX}")
+        #print(f"Model will be saved to {MODEL_SAVE_PATH_LINUX}")
+        print(f"Model will be saved to {MODEL_SAVE_PATH_WINDOWS}")
 
         # Start machine learning here
         df_final = machine_learning(combined_df)
@@ -527,16 +533,16 @@ def update_group_values(df_final):
     for node in nodes:
         row = df_final[df_final['Node ID'] == int(node['id'])]
 
-        if not row.empty:
+        if not row.empty and node['group'] == 3:
             # Get the group value from the row
             group = row['Group'].values[0]
             node['group'] = str(group)
 
     # Update edges
     for edge in edges:
-        row = df_final[df_final['Node ID'] == int(edge['from'])]
+        row = df_final[df_final['Node ID'] == int(edge['id'])]
 
-        if not row.empty:
+        if not row.empty and edge['group'] == 3:
             # Get the group value from the row
             group = row['Group'].values[0]
             edge['group'] = str(group)
@@ -583,8 +589,18 @@ def export_data(df_final):
 
     # Save the dictionary as a JSON file
     print("Saving the predicted data to predicted_data_final.json")
-    with open("../model/predicted_data_final.json", 'w') as f:
+
+    current_dir = os.path.dirname(__file__)
+    model_path = os.path.join(current_dir, '..', 'model')
+
+    # Check if the model directory exists
+    print(os.path.exists(model_path))
+
+    with open(os.path.join(model_path, 'predicted_data_final.json'), 'w') as f:
         json.dump(data, f, indent=2)
+
+    # with open("..\model\predicted_data_final.json", 'w') as f:
+    #     json.dump(data, f, indent=2)
 
 
 def main():
@@ -600,10 +616,14 @@ def main():
     print("Reading the data files...")
 
     # Initialize the data_final DataFrame
-    data_final_df, edges_df = create_dataframe(LINUX_PATH_1, False)
+    #data_final_df, edges_df = create_dataframe(LINUX_PATH_1, False)
+    path_to_data_final = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_final.json')
+    data_final_df, edges_df = create_dataframe(path_to_data_final, False)
 
     # Initialize the features DataFrame
-    features_df, no_use = create_dataframe(LINUX_PATH_2, True)
+    #features_df, no_use = create_dataframe(LINUX_PATH_2, True)
+    path_to_features = os.path.join(os.path.dirname(__file__), '..', 'data', 'elliptic_txs_features.csv')
+    features_df, no_use = create_dataframe(path_to_features, True)
 
     # Merge the DataFrames
     combined_df = merge_dataframes(data_final_df, features_df)

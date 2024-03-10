@@ -9,7 +9,7 @@ SCRIPT_DIR = os.path.dirname(__file__)
 
 # Path to the filtered_models directory
 FILTERED_MODELS_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, '..', 'data',
-                                                    'filtered_models'))
+                                                    'filtered_models', 'data'))
 
 
 def load_data(filename):
