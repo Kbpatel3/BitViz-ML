@@ -533,7 +533,7 @@ def update_group_values(df_final):
     for node in nodes:
         row = df_final[df_final['Node ID'] == int(node['id'])]
 
-        if not row.empty and node['group'] == 3:
+        if not row.empty:
             # Get the group value from the row
             group = row['Group'].values[0]
             node['group'] = str(group)
@@ -542,7 +542,7 @@ def update_group_values(df_final):
     for edge in edges:
         row = df_final[df_final['Node ID'] == int(edge['id'])]
 
-        if not row.empty and edge['group'] == 3:
+        if not row.empty:
             # Get the group value from the row
             group = row['Group'].values[0]
             edge['group'] = str(group)
