@@ -1,5 +1,15 @@
-# Filters the data to get the illicit data (will add more filters)
+"""
+Filename: filter.py
+Author: Kaushal Patel & Noah Hassett
+Date: 05-07-2024
+Description: This script includes functions to load and filter data based on certain conditions.
+It filters data to include chains with illicit transactions, chains with a minimum number of edges,
+chains with no edges, transactions with edges that are between certain numbers, and nodes with a
+minimum number of edges and illicit transactions in the chain.
+The filtered data is then written to a file.
+"""
 
+# Imports for the script
 import json
 import os
 import time
@@ -17,7 +27,10 @@ def load_data(filename):
     Load the data from a file
 
     Args:
-    filename: the name of the file to load the data from
+        filename: the name of the file to load the data from
+
+    Returns:
+        data: the data from the file
     """
     # Get the path to the file
     filename = os.path.normpath(os.path.join(FILTERED_MODELS_DIR, filename))
@@ -37,8 +50,11 @@ def write_data(data, filename):
     Write the data to a file
 
     Args:
-    data: the data to write
-    filename: the name of the file to write the data to
+        data: the data to write
+        filename: the name of the file to write the data to
+
+    Returns:
+        None
     """
     # Get the path to the file
     filename = os.path.normpath(os.path.join(FILTERED_MODELS_DIR, filename))
@@ -56,8 +72,11 @@ def get_illicit_data(data, filename):
     Get the illicit data from the final data
 
     Args:
-    data: the final data
-    filename: the name of the file to write the illicit data to
+        data: the final data
+        filename: the name of the file to write the illicit data to
+
+    Returns:
+        None
     """
     # Initialize the list of illicit data
     illicit = []
@@ -77,7 +96,10 @@ def is_illicit(data):
     Check if the edge data is illicit
 
     Args:
-    data: the edge data
+        data: the edge data
+
+    Returns:
+        True if the edge data is illicit, False otherwise
     """
 
     # Loop through the connected transactions
@@ -93,9 +115,12 @@ def get_min_edge_data(data, min_edge_count, filename):
     Get the data with a minimum edge count
 
     Args:
-    data: the final data
-    min_edge_count: the minimum edge count
-    filename: the name of the file to write the data with the minimum edge count to
+        data: the final data
+        min_edge_count: the minimum edge count
+        filename: the name of the file to write the data with the minimum edge count to
+
+    Returns:
+        None
     """
     # Initialize the list of data with the minimum edge count
     min_edge = []
@@ -116,9 +141,13 @@ def get_range_edge_data(data, min_edge_count, max_edge_count, filename):
     Get the data with a minimum edge count
 
     Args:
-    data: the final data
-    min_edge_count: the minimum edge count
-    filename: the name of the file to write the data with the minimum edge count to
+        data: the final data
+        min_edge_count: the minimum edge count
+        max_edge_count: the maximum edge count
+        filename: the name of the file to write the data with the minimum edge count to
+
+    Returns:
+        None
     """
     # Initialize the list of data with the minimum edge count
     range_edge = []
@@ -139,9 +168,12 @@ def get_min_edge_illicit_data(data, min_edge_count, filename):
     Get the data with a minimum edge count and illicit
 
     Args:
-    data: the final data
-    min_edge_count: the minimum edge count
-    filename: the name of the file to write the data with the minimum edge count to
+        data: the final data
+        min_edge_count: the minimum edge count
+        filename: the name of the file to write the data with the minimum edge count to
+
+    Returns:
+        None
     """
     # Initialize the list of data with the minimum edge count
     min_edge_illicit = []
@@ -160,6 +192,9 @@ def get_min_edge_illicit_data(data, min_edge_count, filename):
 def main():
     """
     Main function
+
+    Returns:
+        None
     """
 
     # Print that the program has started
