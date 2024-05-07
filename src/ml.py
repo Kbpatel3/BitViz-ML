@@ -1,20 +1,22 @@
-import os
-import pandas as pd
+"""
+Filename: ml.py
+Author: Kaushal Patel & Noah Hassett
+Date: 05-07-2024
+Description: This script includes functions to load data from JSON and CSV files, preprocess
+the data, train a Random Forest Classifier model, make predictions on unknown data,
+and save the trained model. It also provides functionality to query the predicted data
+based on Node ID. The script is designed to work with data related to transactions and
+their features, and it uses pandas for data manipulation, sklearn for machine learning,
+and joblib for saving the model.
+"""
+
+# Imports for the script
 import json
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
+import os
 import joblib
-
-# CONSTANTS
-
-# # Windows Paths to the data files
-# WINDOWS_PATH_1 = 'data\data_final.json'
-# WINDOWS_PATH_2 = 'data\elliptic_txs_features.csv'
-
-# # Linux Paths to the data files
-# LINUX_PATH_1 = '../data/data_final.json'
-# LINUX_PATH_2 = '../data/elliptic_txs_features.csv'
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
 # Model Save Path and Extension
 MODEL_SAVE_PATH_LINUX = '../model/'
@@ -26,11 +28,10 @@ nodes = []
 edges = []
 
 
-# FUNCTIONS
-
 def get_edges_dataframe(df):
     """
-    Extracts the 'Edges' column from the DataFrame and returns a new DataFrame with the edges data.
+    Extracts the 'Edges' column from the DataFrame and returns a new DataFrame with the edge's
+    data.
     :param df: The DataFrame to extract the edges from
     :return: A new DataFrame with the edges data
     """
@@ -48,12 +49,6 @@ def get_edges_dataframe(df):
     edges_df.rename(columns={'id': 'Node ID', 'timestep': 'Timestep', 'group': 'Group'},
                     inplace=True)
 
-    # Print the DataFrame
-    # print_dataframe(edges_df, "Edges")
-
-    # Print divider
-    # print_divider()
-
     return edges_df
 
 
@@ -64,6 +59,7 @@ def load_json_file(file):
     :return: A dictionary with the JSON data
     """
 
+    # Open and load the JSON files into a dictionary
     with open(file, 'r') as f:
         data = json.load(f)
 
@@ -120,6 +116,8 @@ def create_data_structure(data_final_dict):
     :param data_final_dict: The dictionary with the JSON data
     :return: None
     """
+
+    # Reference the global variables to modify them
     global nodes
     global edges
 
@@ -139,13 +137,6 @@ def create_data_structure(data_final_dict):
             # Append the 'id', 'timestep', and 'group' to the 'edges' list
             edges.append({'from': data['id'], 'id': edge['id'], 'timestep': edge['timestep'],
                           'group': edge['group']})
-
-    # Print the nodes and edges
-    # print(nodes)
-    # print(edges)
-
-    # Print divider
-    # print_divider()
 
 
 def build_json_dataframe(file):
@@ -199,6 +190,7 @@ def create_dataframe(file, is_feature):
     df = None
     edges_df = None
 
+    # Check if the file is a feature file
     if not is_feature:
         # Convert the JSON data into a DataFrame
         df, edges_df = build_json_dataframe(file)
@@ -242,9 +234,7 @@ def separate_unknown(df):
     # Separate the instances where the group is not 3 (Illicit or Licit group)
     df_train_test = df[df['Group'] != 3]
 
-    # df_predict will be the transactions with unknown classificaiton and df_train_test will be
-    # the transactions with known classification which will be used for training and testing the
-    # model
+    # Return the DataFrames
     return df_predict, df_train_test
 
 
@@ -368,6 +358,7 @@ def machine_learning(df):
     :return: The trained model
     """
 
+    # Separate the unknown transactions from the known transactions
     df_predict, df_train_test = separate_unknown(df)
 
     # Print the DataFrames
@@ -422,8 +413,10 @@ def user_print_input(data_final_df, features_df, combined_df):
     :return: None
     """
 
+    # Ask the user if they want to print the dataframes
     print_data = input("Do you want to print the dataframes? (y/n): ")
 
+    # Print the DataFrames if the user enters 'y' or 'Y'
     if print_data.lower() == 'y':
         print_dataframe(data_final_df, "Data Final")
         print_dataframe(features_df, "Features")
@@ -447,8 +440,10 @@ def start_ml(combined_df):
     # Initialize the return DataFrame
     df_final = None
 
+    # Ask the user if they want to start machine learning
     start_ml_input = input("Do you want to start machine learning? (y/n): ")
 
+    # Start machine learning if the user enters 'y' or 'Y'
     if start_ml_input.lower() == 'n':
         print("Machine Learning will not start")
     elif start_ml_input.lower() == 'y':
@@ -484,11 +479,13 @@ def query_data(df_predict):
     while True:
         node_id = input("Enter a Node ID to query (Enter 'q' to quit): ")
 
+        # Check if the user wants to quit
         if node_id.lower() == 'q':
             print("Query will end")
             exit(0)
 
         try:
+            # Convert the input to an integer
             node_id = int(node_id)
         except ValueError:
             print("You did not enter a valid number. Try again")
@@ -509,8 +506,10 @@ def user_query(df_predict):
     :return: None
     """
 
+    # Ask the user if they want to query the predicted data
     query_input = input("Do you want to query the predicted data? (y/n): ")
 
+    # Query the predicted data if the user enters 'y' or 'Y'
     if query_input.lower() == 'n':
         print("Query will not start")
     elif query_input.lower() == 'y':
@@ -531,20 +530,28 @@ def update_group_values(df_final):
 
     # Update nodes
     for node in nodes:
+        # Find the row in the DataFrame that matches the Node ID
         row = df_final[df_final['Node ID'] == int(node['id'])]
 
+        # Check if the row is not empty
         if not row.empty:
             # Get the group value from the row
             group = row['Group'].values[0]
+
+            # Update the group value in the node dictionary
             node['group'] = str(group)
 
     # Update edges
     for edge in edges:
+        # Find the row in the DataFrame that matches the Node ID
         row = df_final[df_final['Node ID'] == int(edge['id'])]
 
+        # Check if the row is not empty
         if not row.empty:
             # Get the group value from the row
             group = row['Group'].values[0]
+
+            # Update the group value in the edge dictionary
             edge['group'] = str(group)
 
 
@@ -581,8 +588,10 @@ def export_data(df_final):
 
     # Map the edges to the nodes based on the 'from' key
     for node in nodes:
+        # Add an 'edges' key to the node
         node['edges'] = []
         for edge in edges:
+            # Check if the 'from' key matches the node's 'id'
             if edge['from'] == node['id']:
                 # Add the edge to the node but don't include the 'from' key
                 node['edges'].append({key: value for key, value in edge.items() if key != 'from'})
@@ -590,6 +599,7 @@ def export_data(df_final):
     # Save the dictionary as a JSON file
     print("Saving the predicted data to predicted_data_final.json")
 
+    # Get the current directory
     current_dir = os.path.dirname(__file__)
     model_path = os.path.join(current_dir, '..', 'model')
 
@@ -598,9 +608,6 @@ def export_data(df_final):
 
     with open(os.path.join(model_path, 'predicted_data_final.json'), 'w') as f:
         json.dump(data, f, indent=2)
-
-    # with open("..\model\predicted_data_final.json", 'w') as f:
-    #     json.dump(data, f, indent=2)
 
 
 def main():
@@ -622,7 +629,8 @@ def main():
 
     # Initialize the features DataFrame
     #features_df, no_use = create_dataframe(LINUX_PATH_2, True)
-    path_to_features = os.path.join(os.path.dirname(__file__), '..', 'data', 'elliptic_txs_features.csv')
+    path_to_features = os.path.join(os.path.dirname(__file__), '..', 'data',
+                                    'elliptic_txs_features.csv')
     features_df, no_use = create_dataframe(path_to_features, True)
 
     # Merge the DataFrames
@@ -633,10 +641,6 @@ def main():
 
     # User input to ask if the user wants to start machine learning
     df_final = start_ml(combined_df)
-
-    # Print the percentage of nodes that are group 1 and the percentage of nodes that are group 2
-    # print("Percentage of Classification")
-    # print(df_predict['Group'].value_counts(normalize=True))
 
     # Loop to query the predicted data
     if df_final is not None:
